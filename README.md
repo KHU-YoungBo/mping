@@ -1,6 +1,13 @@
 # mping
 
-One-way packet transmit test tool.
+MAC Ping. One-way packet transmit test tool.
+
+* Without IP protocol.
+* One-way, No echo
+* Ethernet Only
+
+
+If you want to see frames(packets) at the receiver side, use **tcpdump** with -e option.
 
 ## Usage
 ```
