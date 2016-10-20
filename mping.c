@@ -1,24 +1,24 @@
-#include<netinet/in.h>
-#include<errno.h>
-#include<netdb.h>
-#include<stdio.h> //For standard things
-#include<stdlib.h>    //malloc
-#include<string.h>    //strlen
+#include <netinet/in.h>
+#include <errno.h>
+#include <netdb.h>
+#include <stdio.h> //For standard things
+#include <stdlib.h>    //malloc
+#include <string.h>    //strlen
  
-#include<netinet/ip_icmp.h>   //Provides declarations for icmp header
-#include<netinet/udp.h>   //Provides declarations for udp header
-#include<netinet/tcp.h>   //Provides declarations for tcp header
-#include<netinet/ip.h>    //Provides declarations for ip header
-#include<netinet/if_ether.h>  //For ETH_P_ALL
-#include<net/ethernet.h>  //For ether_header
-#include<sys/socket.h>
-#include<arpa/inet.h>
-#include<sys/ioctl.h>
-#include<sys/time.h>
-#include<sys/types.h>
-#include<unistd.h>
-
+#include <netinet/ip_icmp.h>   //Provides declarations for icmp header
+#include <netinet/udp.h>   //Provides declarations for udp header
+#include <netinet/tcp.h>   //Provides declarations for tcp header
+#include <netinet/ip.h>    //Provides declarations for ip header
+#include <netinet/if_ether.h>  //For ETH_P_ALL
+#include <net/ethernet.h>  //For ether_header
+#include <sys/socket.h>
+#include <arpa/inet.h>
 #include <sys/ioctl.h>
+#include <net/if.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <unistd.h>
 #include <net/if.h>
 #include <sys/socket.h>
 #include <linux/if_packet.h>
@@ -107,17 +107,23 @@ int main(int argc, char **argv)
 	int fd = _link_fd(ETHERTYPE_MPING, broadcastEnable);
 	struct sockaddr_ll addr_src[1];
 	struct sockaddr_ll addr_dst[1];
-	uint16_t mac[6];
+	unsigned mac_buf[6];
+	uint8_t mac_addr[6];
 	char buf[1024] = "Hello MPING";
 	size_t buflen = strlen(buf);
 
-	sscanf(argv[ARGV_INDEX_MACARR],"%hx:%hx:%hx:%hx:%hx:%hx",
-			mac+0,
-			mac+1,
-			mac+2,
-			mac+3,
-			mac+4,
-			mac+5);
+	sscanf(argv[ARGV_INDEX_MACARR],"%2x:%2x:%2x:%2x:%2x:%2x",
+			mac_buf+0,
+			mac_buf+1,
+			mac_buf+2,
+			mac_buf+3,
+			mac_buf+4,
+			mac_buf+5);
+
+	for(int i=0; i<6; i++)
+	{
+		mac_addr[i] = mac_buf[i];
+	}
 
 
 	_bind_fd(addr_src, fd, argv[ARGV_INDEX_DEV]);
@@ -128,7 +134,7 @@ int main(int argc, char **argv)
 	addr_dst->sll_hatype	= ARPHRD_ETHER;
 	addr_dst->sll_pkttype	= PACKET_OTHERHOST;
 	addr_dst->sll_halen	= 6;
-	memcpy(addr_dst->sll_addr, mac, 6);
+	memcpy(addr_dst->sll_addr, mac_addr, 6);
 
 	for(int i=1;;i++)
 	{

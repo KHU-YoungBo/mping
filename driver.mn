@@ -18,16 +18,17 @@ class MyTopo(Topo):
 		# hosts
 		hosts.append(self.addHost('h1'))
 		hosts.append(self.addHost('h2'))
+		hosts.append(self.addHost('h3'))
+		hosts.append(self.addHost('h4'))
 
 		# switchs
 		switches.append(self.addSwitch('s1'))
-		switches.append(self.addSwitch('s2'))
 
 		# links
 		self.addLink(hosts[0], switches[0])
-		self.addLink(hosts[0], switches[1])
 		self.addLink(hosts[1], switches[0])
-		self.addLink(hosts[1], switches[1])
+		self.addLink(hosts[2], switches[0])
+		self.addLink(hosts[3], switches[0])
 
 
 def main():
