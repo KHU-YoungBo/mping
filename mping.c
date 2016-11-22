@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "etheraddr.h"
 #include "mping.h"
 
 #define ARGV_INDEX_DEV	(1)
@@ -107,24 +108,11 @@ int main(int argc, char **argv)
 	int fd = _link_fd(ETHERTYPE_MPING, broadcastEnable);
 	struct sockaddr_ll addr_src[1];
 	struct sockaddr_ll addr_dst[1];
-	unsigned mac_buf[6];
-	uint8_t mac_addr[6];
+	ether_addr_t addr;
 	char buf[1024] = "Hello MPING";
 	size_t buflen = strlen(buf);
 
-	sscanf(argv[ARGV_INDEX_MACARR],"%2x:%2x:%2x:%2x:%2x:%2x",
-			mac_buf+0,
-			mac_buf+1,
-			mac_buf+2,
-			mac_buf+3,
-			mac_buf+4,
-			mac_buf+5);
-
-	for(int i=0; i<6; i++)
-	{
-		mac_addr[i] = mac_buf[i];
-	}
-
+	ether_str_to_addr(argv[ARGV_INDEX_MACARR], addr);
 
 	_bind_fd(addr_src, fd, argv[ARGV_INDEX_DEV]);
 
@@ -134,7 +122,7 @@ int main(int argc, char **argv)
 	addr_dst->sll_hatype	= ARPHRD_ETHER;
 	addr_dst->sll_pkttype	= PACKET_OTHERHOST;
 	addr_dst->sll_halen	= 6;
-	memcpy(addr_dst->sll_addr, mac_addr, 6);
+	memcpy(addr_dst->sll_addr, addr, ETHER_ADDR_LEN);
 
 	for(int i=1;;i++)
 	{
